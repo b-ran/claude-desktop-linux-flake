@@ -58,7 +58,18 @@ in
 
       # Extract installer exe, and nupkg within it
       7z x -y ${srcExe}
-      7z x -y "AnthropicClaude-${version}-full.nupkg"
+
+      # Find and extract the nupkg file dynamically
+      NUPKG_FILE=$(ls AnthropicClaude*-full.nupkg 2>/dev/null | head -1)
+      if [ -z "$NUPKG_FILE" ]; then
+        echo "Error: No AnthropicClaude*-full.nupkg file found after extraction"
+        echo "Available files:"
+        ls -la
+        exit 1
+      fi
+
+      echo "Found nupkg file: $NUPKG_FILE"
+      7z x -y "$NUPKG_FILE"
 
       # Package the icons from claude.exe
       wrestool -x -t 14 lib/net45/claude.exe -o claude.ico
